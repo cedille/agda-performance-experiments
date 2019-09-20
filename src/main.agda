@@ -2,6 +2,7 @@ module main where
 
 open import lib
 open import int
+open import functions
 
 postulate
   initializeStdinToUTF8 : IO ⊤
@@ -22,6 +23,21 @@ postulate
 putStrLn : string → IO ⊤
 putStrLn str = putStr str >> putStr "\n" 
 
+make-trie : 𝕃 string → trie int
+make-trie [] = empty-trie
+make-trie (x :: y :: ss) =
+  let subtrie = make-trie ss
+  in trie-insert subtrie x (int-from-nat (trie-size subtrie))
+make-trie (_ :: ss) = make-trie ss
+
+computation-test-1 : 𝕃 string → trie int → int
+computation-test-1 [] t = int0
+computation-test-1 (s :: ss) t with trie-lookup t s
+computation-test-1 (s :: ss) t | nothing = computation-test-1 ss t
+computation-test-1 (s :: ss) t | just v =
+  let x = computation-test-1 ss t
+  in v +int x
+
 -- main entrypoint for the backend
 main : IO ⊤
 main = initializeStdoutToUTF8 >>
@@ -29,6 +45,9 @@ main = initializeStdoutToUTF8 >>
        setStdoutNewlineMode >>
        setStdinNewlineMode >>
        let ss = getRandTexts (string-to-int "42" ) (string-to-int "10") (string-to-int "3") (string-to-int "10")
-           joined = string-concat-sep ",\n" ss in
+           t = make-trie ss
+           joined = trie-to-string ", " int-to-string t
+       in
        putStrLn joined >>
+       -- putStrLn (int-to-string (computation-test-1 ss (make-trie ss))) >>
        return triv

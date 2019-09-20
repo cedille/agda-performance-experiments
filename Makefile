@@ -5,7 +5,9 @@ SRCDIR=src
 SRC = $(wildcard src/*.agda)
 OBJ = $(SRC:%.agda=%.agdai)
 
-LIB = --library-file=libraries --library=ial --library=agda-perf
+LIB =
+# --library-file=.agda-lib 
+# --library=ial --library=agda-perf
 
 all: test1
 
