@@ -23,12 +23,12 @@ postulate
 putStrLn : string → IO ⊤
 putStrLn str = putStr str >> putStr "\n" 
 
-make-trie : 𝕃 string → trie int
-make-trie [] = empty-trie
-make-trie (x :: y :: ss) =
-  let subtrie = make-trie ss
-  in trie-insert subtrie x (int-from-nat (trie-size subtrie))
-make-trie (_ :: ss) = make-trie ss
+make-trie : (trie int → string → int → trie int) → 𝕃 string → trie int
+make-trie insert-fn [] = empty-trie
+make-trie insert-fn (x :: y :: ss) =
+  let subtrie = make-trie insert-fn ss
+  in insert-fn subtrie x (int-from-nat (trie-size subtrie))
+make-trie insert-fn (_ :: ss) = make-trie insert-fn ss
 
 computation-test-1 : 𝕃 string → trie int → int
 computation-test-1 [] t = int0
@@ -44,10 +44,14 @@ main = initializeStdoutToUTF8 >>
        initializeStdinToUTF8 >>
        setStdoutNewlineMode >>
        setStdinNewlineMode >>
-       let ss = getRandTexts (string-to-int "42" ) (string-to-int "10") (string-to-int "3") (string-to-int "10")
-           t = make-trie ss
-           joined = trie-to-string ", " int-to-string t
+       let ss = getRandTexts (string-to-int "42" ) (string-to-int "16") (string-to-int "3") (string-to-int "10")
+           t1 = make-trie (trie-insert-safe{int}) ss
+           joined1 = trie-to-string ", " int-to-string t1
+           t2 = make-trie (trie-insert-fast{int}) ss
+           joined2 = trie-to-string ", " int-to-string t2
        in
-       putStrLn joined >>
+       putStrLn joined1 >>
+       putStrLn "------------------" >>
+       putStrLn joined2 >>
        -- putStrLn (int-to-string (computation-test-1 ss (make-trie ss))) >>
        return triv

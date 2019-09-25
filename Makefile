@@ -4,6 +4,7 @@ SRCDIR=src
 
 SRC = $(wildcard src/*.agda)
 OBJ = $(SRC:%.agda=%.agdai)
+IAL_SRC = $(wildcard ial/*.agda)
 
 LIB =
 # --library-file=.agda-lib 
@@ -21,7 +22,7 @@ CEDILLE_DEPS = $(SRC) Makefile libraries ./ial/ial.agda-lib
 CEDILLE_BUILD_CMD = $(AGDA) $(LIB) --ghc-flag=-rtsopts 
 CEDILLE_BUILD_CMD_DYN = $(CEDILLE_BUILD_CMD) --ghc-flag=-dynamic 
 
-test1:	$(CEDILLE_DEPS)
+test1:	$(CEDILLE_DEPS) $(IAL_SRC)
 		echo $(CEDILLE_DEPS)
 		$(CEDILLE_BUILD_CMD_DYN) -c $(SRCDIR)/main.agda
 		mv $(SRCDIR)/main $@
